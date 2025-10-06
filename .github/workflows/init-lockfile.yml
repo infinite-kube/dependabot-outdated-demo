@@ -1,0 +1,35 @@
+name: Initialize lockfile
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches: ["main"]
+
+permissions:
+  contents: write
+
+jobs:
+  lockfile:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'chore: add lockfile')"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - name: Generate lockfile
+        run: npm install
+      - name: Commit lockfile if changed
+        run: |
+          if [ -f package-lock.json ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add package-lock.json
+            if git diff --cached --quiet; then
+              echo "No changes."
+            else
+              git commit -m "chore: add lockfile"
+              git push
+            fi
+          fi
