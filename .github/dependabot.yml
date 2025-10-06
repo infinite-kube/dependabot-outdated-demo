@@ -1,0 +1,24 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "08:00"
+    open-pull-requests-limit: 10
+    # Group minor+patch together (fast lane), keep majors separate
+    groups:
+      minor-and-patch:
+        patterns: ["*"]
+        update-types:
+          - "version-update:semver-minor"
+          - "version-update:semver-patch"
+      majors:
+        patterns: ["*"]
+        update-types:
+          - "version-update:semver-major"
+    labels: ["dependabot", "dependencies"]
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    rebase-strategy: "auto"
