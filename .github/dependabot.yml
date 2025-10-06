@@ -6,21 +6,25 @@ updates:
       interval: "daily"
       time: "08:00"
     open-pull-requests-limit: 10
-    # Group minor+patch together (fast lane), keep majors separate
-groups:
-  minor-and-patch:
-    update-types:
-      - minor
-      - patch
-    patterns:
-      - "*"
-  majors:
-    update-types:
-      - major
-    patterns:
-      - "*"
+
+    # Optional niceties for PRs
     labels: ["dependabot", "dependencies"]
     commit-message:
       prefix: "chore"
-      include: "scope"
     rebase-strategy: "auto"
+
+    # Group minor/patch together; keep majors separate
+    groups:
+      minor-and-patch:
+        applies-to: version-updates     # defaults to version-updates; explicit for clarity
+        update-types:
+          - minor
+          - patch
+        patterns:
+          - "*"                         # match all packages
+      majors:
+        applies-to: version-updates
+        update-types:
+          - major
+        patterns:
+          - "*"
