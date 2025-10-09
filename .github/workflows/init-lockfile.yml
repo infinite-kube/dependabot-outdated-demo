@@ -10,16 +10,21 @@ permissions:
 
 jobs:
   lockfile:
+    # Skip if this run is from the commit we just made to add the lockfile.
+    if: github.event_name != 'push' || !contains(github.event.head_commit.message, 'chore: add lockfile')
     runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, 'chore: add lockfile')"
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "npm"
+
+      # Create/refresh package-lock.json (doesn't commit node_modules)
       - name: Generate lockfile
         run: npm install
+
       - name: Commit lockfile if changed
         run: |
           if [ -f package-lock.json ]; then
