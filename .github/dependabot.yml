@@ -1,30 +1,49 @@
 version: 2
 updates:
+  # NPM packages
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "daily"
-      time: "08:00"
+      interval: "weekly"
+      day: "tuesday"
+      time: "09:00"
+      timezone: "America/New_York"
     open-pull-requests-limit: 10
-
-    # Optional niceties for PRs
     labels: ["dependabot", "dependencies"]
     commit-message:
       prefix: "chore"
     rebase-strategy: "auto"
-
-    # Group minor/patch together; keep majors separate
+    # Group updates to reduce PR noise
     groups:
-      minor-and-patch:
-        applies-to: version-updates     # defaults to version-updates; explicit for clarity
-        update-types:
-          - minor
-          - patch
-        patterns:
-          - "*"                         # match all packages
-      majors:
+      dev-tools-minor-patch:
         applies-to: version-updates
-        update-types:
-          - major
+        dependency-type: "development"
+        update-types: ["minor", "patch"]
+        patterns:
+          - "jest*"
+          - "eslint"
+          - "@eslint/*"
+          - "prettier"
+      runtime-minor-patch:
+        applies-to: version-updates
+        dependency-type: "production"
+        update-types: ["minor", "patch"]
         patterns:
           - "*"
+      majors:
+        applies-to: version-updates
+        update-types: ["major"]
+        patterns:
+          - "*"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+      time: "09:30"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 2
+    labels: ["dependabot", "dependencies"]
+    commit-message:
+      prefix: "chore"
