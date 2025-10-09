@@ -1,33 +1,32 @@
 name: Dependabot Auto-Merge (Minor/Patch)
-
 on:
   pull_request:
     types: [opened, synchronize, reopened, labeled]
-
 permissions:
   contents: write
   pull-requests: write
-
 jobs:
   enable-automerge:
-    # Only run for Dependabot PRs
     if: ${{ github.actor == 'dependabot[bot]' }}
     runs-on: ubuntu-latest
     steps:
       - uses: dependabot/fetch-metadata@v2
-        id: metadata
+        id: meta
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      # Label majors for manual attention; auto-merge only minor/patch
+      
+      # Label majors for manual attention
       - name: Label majors as needs-manual
-        if: ${{ steps.metadata.outputs.update-type == 'version-update:semver-major' }}
+        if: ${{ steps.meta.outputs.update-type == 'version-update:semver-major' }}
         run: gh pr edit ${{ github.event.pull_request.number }} --add-label "needs-manual-review"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Enable auto-merge for minor/patch
-        if: ${{ steps.metadata.outputs.update-type == 'version-update:semver-minor' || steps.metadata.outputs.update-type == 'version-update:semver-patch' }}
+      
+      # Auto-merge only minor/patch
+      - name: Enable auto-merge
+        if: |
+          steps.meta.outputs.update-type == 'version-update:semver-minor' ||
+          steps.meta.outputs.update-type == 'version-update:semver-patch'
         uses: peter-evans/enable-pull-request-automerge@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
